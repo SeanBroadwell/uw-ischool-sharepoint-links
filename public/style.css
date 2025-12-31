@@ -1,0 +1,172 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  background: #f5f7fb;
+  padding: 40px;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.add-card {
+  background: #0078d4;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-card:hover {
+  background: #005fa3;
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* Card */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+/* View / Edit modes */
+.view-mode,
+.edit-mode {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Inputs (edit mode) */
+.edit-mode input,
+.edit-mode textarea {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.edit-mode textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-mode input:focus,
+.edit-mode textarea:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
+/* Card actions */
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.card-actions a {
+  text-decoration: none;
+  background: #e6f0fb;
+  color: #0078d4;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.card-actions a:hover {
+  background: #d6e9fa;
+}
+
+.card-actions button {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.card-actions button:hover {
+  background: #f0f0f0;
+}
+
+/* Save button emphasis */
+.save-btn {
+  background: #0078d4;
+  color: black;
+  border: none;
+}
+
+.save-btn:hover {
+  background: #005fa3;
+}
+
+.delete-btn {
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.delete-btn:hover {
+  background: #fdecea;
+}
+
+.delete-btn {
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.delete-btn:hover {
+  background: #fdecea;
+}
+
+

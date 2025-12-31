@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SharePoint Links</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>SharePoint Sites</h1>
+  <button class="add-card" id="addCardBtn">+ Add Card</button>
+</header>
+
+<main class="card-grid" id="cardGrid"></main>
+
+<script>
+const cardGrid = document.getElementById("cardGrid");
+const addCardBtn = document.getElementById("addCardBtn");
+
+// Helper to attach card events
+function attachCardLogic(card, cardId) {
+  const viewMode = card.querySelector(".view-mode");
+  const editMode = card.querySelector(".edit-mode");
+
+  const editBtn = card.querySelector(".edit-btn");
+  const deleteBtn = card.querySelector(".delete-btn");
+  const saveBtn = card.querySelector(".save-btn");
+  const cancelBtn = card.querySelector(".cancel-btn");
+  const link = card.querySelector(".card-link");
+
+  editBtn.onclick = () => {
+    viewMode.classList.add("hidden");
+    editMode.classList.remove("hidden");
+  };
+
+  cancelBtn.onclick = () => {
+    editMode.classList.add("hidden");
+    viewMode.classList.remove("hidden");
+  };
+
+  saveBtn.onclick = async () => {
+    const updatedData = {
+      title: editMode.querySelector(".edit-title").value,
+      desc: editMode.querySelector(".edit-desc").value,
+      link: editMode.querySelector(".edit-link").value
+    };
+
+    // Update DB
+    const res = await fetch(`/api/cards/${cardId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData)
+    });
+    const savedCard = await res.json();
+
+    viewMode.querySelector(".card-title").textContent = savedCard.title;
+    viewMode.querySelector(".card-desc").textContent = savedCard.desc;
+    link.href = savedCard.link;
+
+    editMode.classList.add("hidden");
+    viewMode.classList.remove("hidden");
+  };
+
+  deleteBtn.onclick = async () => {
+    await fetch(`/api/cards/${cardId}`, { method: "DELETE" });
+    card.remove();
+  };
+
+  // Prevent opening link if empty
+  link.onclick = (e) => {
+    const href = link.getAttribute("href");
+    if (!href || href === "#" || href.trim() === "") {
+      e.preventDefault();
+      alert("Please enter a valid website URL before opening the site.");
+    }
+  };
+}
+
+// Create card element
+function createCardElement(cardData) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="view-mode">
+      <h2 class="card-title">${cardData.title || ''}</h2>
+      <p class="card-desc">${cardData.desc || ''}</p>
+      <div class="card-actions">
+        <a class="card-link" href="${cardData.link || '#'}" target="_blank">Open Site</a>
+        <div>
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
+        </div>
+      </div>
+    </div>
+    <div class="edit-mode hidden">
+      <input class="edit-title" type="text" placeholder="Card Title" value="${cardData.title || ''}" />
+      <textarea class="edit-desc" placeholder="Description">${cardData.desc || ''}</textarea>
+      <input class="edit-link" type="url" placeholder="https://example.com" value="${cardData.link || ''}" />
+      <div class="card-actions">
+        <button class="save-btn">Save</button>
+        <button class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  `;
+  attachCardLogic(card, cardData._id);
+  return card;
+}
+
+// Load all cards from DB
+async function loadCards() {
+  const res = await fetch("/api/cards");
+  const cards = await res.json();
+  cardGrid.innerHTML = "";
+  cards.forEach(cardData => {
+    cardGrid.appendChild(createCardElement(cardData));
+  });
+}
+
+// Add new card
+addCardBtn.onclick = async () => {
+  const newCard = { title: "", desc: "", link: "" };
+  const res = await fetch("/api/cards", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newCard)
+  });
+  const savedCard = await res.json();
+
+  const card = createCardElement(savedCard);
+  cardGrid.appendChild(card);
+
+  // Auto-open edit mode
+  const viewMode = card.querySelector(".view-mode");
+  const editMode = card.querySelector(".edit-mode");
+  viewMode.classList.add("hidden");
+  editMode.classList.remove("hidden");
+  editMode.querySelector(".edit-title").focus();
+};
+
+// Initial load
+loadCards();
+</script>
+
+</body>
+</html>
