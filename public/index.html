@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SharePoint Links</title>
+  <title>UW iSchool Units</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <header>
-  <h1>SharePoint Sites</h1>
+  <h1>UW iSchool Units</h1>
   <button class="add-card" id="addCardBtn">+ Add Card</button>
 </header>
 
@@ -17,9 +17,10 @@
 <script>
 const cardGrid = document.getElementById("cardGrid");
 const addCardBtn = document.getElementById("addCardBtn");
+addCardBtn.textContent = "+ Add Unit";
 
-// Helper to attach card events
-function attachCardLogic(card, cardId) {
+// Helper to attach unit events
+function attachUnitLogic(card, unitId) {
   const viewMode = card.querySelector(".view-mode");
   const editMode = card.querySelector(".edit-mode");
 
@@ -27,7 +28,11 @@ function attachCardLogic(card, cardId) {
   const deleteBtn = card.querySelector(".delete-btn");
   const saveBtn = card.querySelector(".save-btn");
   const cancelBtn = card.querySelector(".cancel-btn");
-  const link = card.querySelector(".card-link");
+  const openBtn = card.querySelector(".open-unit");
+
+  openBtn.onclick = () => {
+    window.location.href = `/unit.html?id=${unitId}`;
+  };
 
   editBtn.onclick = () => {
     viewMode.classList.add("hidden");
@@ -41,106 +46,98 @@ function attachCardLogic(card, cardId) {
 
   saveBtn.onclick = async () => {
     const updatedData = {
-      title: editMode.querySelector(".edit-title").value,
-      desc: editMode.querySelector(".edit-desc").value,
-      link: editMode.querySelector(".edit-link").value
+      name: editMode.querySelector(".edit-name").value,
+      description: editMode.querySelector(".edit-description").value,
+      managers: editMode.querySelector(".edit-managers").value
     };
 
-    // Update DB
-    const res = await fetch(`/api/cards/${cardId}`, {
+    const res = await fetch(`/api/units/${unitId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedData)
     });
-    const savedCard = await res.json();
+    const savedUnit = await res.json();
 
-    viewMode.querySelector(".card-title").textContent = savedCard.title;
-    viewMode.querySelector(".card-desc").textContent = savedCard.desc;
-    link.href = savedCard.link;
+    viewMode.querySelector(".unit-name").textContent = savedUnit.name;
+    viewMode.querySelector(".unit-description").textContent = savedUnit.description;
+    viewMode.querySelector(".unit-managers").textContent = savedUnit.managers;
 
     editMode.classList.add("hidden");
     viewMode.classList.remove("hidden");
   };
 
   deleteBtn.onclick = async () => {
-    await fetch(`/api/cards/${cardId}`, { method: "DELETE" });
+    await fetch(`/api/units/${unitId}`, { method: "DELETE" });
     card.remove();
-  };
-
-  // Prevent opening link if empty
-  link.onclick = (e) => {
-    const href = link.getAttribute("href");
-    if (!href || href === "#" || href.trim() === "") {
-      e.preventDefault();
-      alert("Please enter a valid website URL before opening the site.");
-    }
   };
 }
 
-// Create card element
-function createCardElement(cardData) {
+// Create unit card element
+function createUnitElement(unit) {
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
     <div class="view-mode">
-      <h2 class="card-title">${cardData.title || ''}</h2>
-      <p class="card-desc">${cardData.desc || ''}</p>
+      <h2 class="unit-name">${unit.name || ''}</h2>
+      <p class="unit-description">${unit.description || ''}</p>
+      <p class="unit-managers"><strong>Managers:</strong> ${unit.managers || ''}</p>
+
       <div class="card-actions">
-        <a class="card-link" href="${cardData.link || '#'}" target="_blank">Open Site</a>
+        <button class="open-unit">Open Unit</button>
         <div>
           <button class="edit-btn">Edit</button>
           <button class="delete-btn">Delete</button>
         </div>
       </div>
     </div>
+
     <div class="edit-mode hidden">
-      <input class="edit-title" type="text" placeholder="Card Title" value="${cardData.title || ''}" />
-      <textarea class="edit-desc" placeholder="Description">${cardData.desc || ''}</textarea>
-      <input class="edit-link" type="url" placeholder="https://example.com" value="${cardData.link || ''}" />
+      <input class="edit-name" type="text" placeholder="Unit Name" value="${unit.name || ''}" />
+      <textarea class="edit-description" placeholder="Description">${unit.description || ''}</textarea>
+      <input class="edit-managers" type="text" placeholder="Managers" value="${unit.managers || ''}" />
+
       <div class="card-actions">
         <button class="save-btn">Save</button>
         <button class="cancel-btn">Cancel</button>
       </div>
     </div>
   `;
-  attachCardLogic(card, cardData._id);
+
+  attachUnitLogic(card, unit._id);
   return card;
 }
 
-// Load all cards from DB
-async function loadCards() {
-  const res = await fetch("/api/cards");
-  const cards = await res.json();
+// Load all units
+async function loadUnits() {
+  const res = await fetch("/api/units");
+  const units = await res.json();
   cardGrid.innerHTML = "";
-  cards.forEach(cardData => {
-    cardGrid.appendChild(createCardElement(cardData));
-  });
+  units.forEach(u => cardGrid.appendChild(createUnitElement(u)));
 }
 
-// Add new card
+// Add new unit
 addCardBtn.onclick = async () => {
-  const newCard = { title: "", desc: "", link: "" };
-  const res = await fetch("/api/cards", {
+  const newUnit = { name: "", description: "", managers: "" };
+
+  const res = await fetch("/api/units", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newCard)
+    body: JSON.stringify(newUnit)
   });
-  const savedCard = await res.json();
+  const savedUnit = await res.json();
 
-  const card = createCardElement(savedCard);
+  const card = createUnitElement(savedUnit);
   cardGrid.appendChild(card);
 
   // Auto-open edit mode
-  const viewMode = card.querySelector(".view-mode");
-  const editMode = card.querySelector(".edit-mode");
-  viewMode.classList.add("hidden");
-  editMode.classList.remove("hidden");
-  editMode.querySelector(".edit-title").focus();
+  card.querySelector(".view-mode").classList.add("hidden");
+  card.querySelector(".edit-mode").classList.remove("hidden");
+  card.querySelector(".edit-name").focus();
 };
 
-// Initial load
-loadCards();
+loadUnits();
 </script>
+
 
 </body>
 </html>

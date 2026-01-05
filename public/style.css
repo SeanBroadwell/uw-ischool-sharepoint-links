@@ -159,14 +159,168 @@ header h1 {
 .delete-btn:hover {
   background: #fdecea;
 }
+/* ===========================
+   UNIT DETAIL PAGE (3 columns)
+   =========================== */
 
-.delete-btn {
-  border: 1px solid #d32f2f;
-  color: #d32f2f;
+.unit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 30px;
 }
 
-.delete-btn:hover {
-  background: #fdecea;
+.unit-item a {
+  word-break: break-word;
 }
 
 
+.unit-meta {
+  max-width: 900px;
+}
+
+.unit-meta p strong {
+  color: #333;
+}
+
+
+.unit-meta h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.unit-meta p {
+  color: #555;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.back-btn:hover {
+  background: #f0f0f0;
+}
+
+/* 3-column layout */
+.unit-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+.unit-col {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 16px;
+  min-height: 420px;
+}
+
+.unit-col h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Small add forms inside columns */
+.mini-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mini-form input,
+.mini-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.mini-form textarea {
+  resize: vertical;
+  min-height: 54px;
+}
+
+.mini-form input:focus,
+.mini-form textarea:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
+.mini-form button {
+  background: #0078d4;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.mini-form button:hover {
+  background: #005fa3;
+}
+
+/* List items inside columns */
+.unit-item {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.unit-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.unit-item .muted {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.unit-item a {
+  text-decoration: none;
+  background: #e6f0fb;
+  color: #0078d4;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.unit-item a:hover {
+  background: #d6e9fa;
+}
+
+/* Mobile: stack columns */
+@media (max-width: 1000px) {
+  body { padding: 20px; }
+  .unit-columns { grid-template-columns: 1fr; }
+}
+
+/* Make Open Unit look like the old Open Site button */
+.open-unit {
+  background: #e6f0fb;
+  color: #0078d4;
+  border: none;
+}
+
+.open-unit:hover {
+  background: #d6e9fa;
+}

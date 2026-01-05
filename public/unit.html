@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Unit</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="unit-header">
+  <div class="unit-meta">
+    <h1 id="unitName">Loading...</h1>
+    <p id="unitDescription"></p>
+    <p id="unitManagers"></p>
+  </div>
+  <button class="back-btn" onclick="window.location.href='/'">Back</button>
+</header>
+
+<main class="unit-columns">
+  <!-- Column 1 -->
+  <section class="unit-col">
+    <h2>SharePoint Sites</h2>
+
+    <form class="mini-form" id="siteForm">
+      <input id="siteTitle" placeholder="Site title" required />
+      <input id="siteUrl" placeholder="https://..." required />
+      <textarea id="siteDesc" placeholder="Description (optional)"></textarea>
+      <button type="submit">Add Site</button>
+    </form>
+
+    <div id="sitesList"></div>
+  </section>
+
+  <!-- Column 2 -->
+  <section class="unit-col">
+    <h2>Contacts</h2>
+
+    <form class="mini-form" id="contactForm">
+      <input id="contactName" placeholder="Name (optional)" />
+      <input id="contactEmail" placeholder="email@..." required />
+      <input id="contactRole" placeholder="Role (optional)" />
+      <button type="submit">Add Contact</button>
+    </form>
+
+    <div id="contactsList"></div>
+  </section>
+
+  <!-- Column 3 -->
+  <section class="unit-col">
+    <h2>Mailman Lists</h2>
+
+    <form class="mini-form" id="mailmanForm">
+      <input id="listName" placeholder="List name" required />
+      <input id="listAddress" placeholder="list@..." required />
+      <textarea id="listDesc" placeholder="Description (optional)"></textarea>
+      <button type="submit">Add List</button>
+    </form>
+
+    <div id="mailmanList"></div>
+  </section>
+</main>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const unitId = params.get("id");
+
+  const unitNameEl = document.getElementById("unitName");
+  const unitDescEl = document.getElementById("unitDescription");
+  const unitManagersEl = document.getElementById("unitManagers");
+
+  const sitesListEl = document.getElementById("sitesList");
+  const contactsListEl = document.getElementById("contactsList");
+  const mailmanListEl = document.getElementById("mailmanList");
+
+  function siteItemHTML(s) {
+    const safeUrl = s.url && s.url.trim() ? s.url : "#";
+    return `
+      <div class="unit-item">
+        <strong>${s.title || ""}</strong>
+        <div class="muted">${s.description || ""}</div>
+        <a href="${safeUrl}" target="_blank">Open Site</a>
+      </div>
+    `;
+  }
+
+  function contactItemHTML(c) {
+    return `
+      <div class="unit-item">
+        <strong>${(c.name && c.name.trim()) ? c.name : (c.email || "")}</strong>
+        <div class="muted">${c.role || ""}</div>
+        <a href="mailto:${c.email || ""}">${c.email || ""}</a>
+      </div>
+    `;
+  }
+
+  function mailmanItemHTML(m) {
+    return `
+      <div class="unit-item">
+        <strong>${m.name || ""}</strong>
+        <div class="muted">${m.description || ""}</div>
+        <a href="mailto:${m.address || ""}">${m.address || ""}</a>
+      </div>
+    `;
+  }
+
+  async function loadUnit() {
+    if (!unitId) {
+      unitNameEl.textContent = "Missing unit id";
+      return;
+    }
+
+    const res = await fetch(`/api/units/${unitId}`);
+    if (!res.ok) {
+      unitNameEl.textContent = "Unit not found";
+      return;
+    }
+
+    const unit = await res.json();
+
+    unitNameEl.textContent = unit.name || "Untitled Unit";
+    unitDescEl.textContent = unit.description || "";
+    unitManagersEl.innerHTML = `<strong>Managers:</strong> ${unit.managers || ""}`;
+
+    sitesListEl.innerHTML = (unit.sites || []).map(siteItemHTML).join("");
+    contactsListEl.innerHTML = (unit.contacts || []).map(contactItemHTML).join("");
+    mailmanListEl.innerHTML = (unit.mailmanLists || []).map(mailmanItemHTML).join("");
+  }
+
+  document.getElementById("siteForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await fetch(`/api/units/${unitId}/sites`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: document.getElementById("siteTitle").value,
+        url: document.getElementById("siteUrl").value,
+        description: document.getElementById("siteDesc").value
+      })
+    });
+    e.target.reset();
+    loadUnit();
+  });
+
+  document.getElementById("contactForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await fetch(`/api/units/${unitId}/contacts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: document.getElementById("contactName").value,
+        email: document.getElementById("contactEmail").value,
+        role: document.getElementById("contactRole").value
+      })
+    });
+    e.target.reset();
+    loadUnit();
+  });
+
+  document.getElementById("mailmanForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await fetch(`/api/units/${unitId}/mailman`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: document.getElementById("listName").value,
+        address: document.getElementById("listAddress").value,
+        description: document.getElementById("listDesc").value
+      })
+    });
+    e.target.reset();
+    loadUnit();
+  });
+
+  loadUnit();
+</script>
+
+</body>
+</html>
